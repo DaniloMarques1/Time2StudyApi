@@ -8,7 +8,9 @@ from flask_cors import CORS
 app  = Flask(__name__)
 CORS(app)
 app.config["JWT_SECRET_KEY"] = "thisissupersecret"
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:12345@localhost/Study"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:Luiz@59001@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:12345@localhost/Study"
+
 
 api = Api(app)
 
@@ -34,8 +36,17 @@ class Task(db.Model):
 	id_user = db.Column(db.Integer, db.ForeignKey("user.id_user"))
 
 
+class Index(Resource):
+	def get(self):
+		user = User.query.filter_by(email="danilomarques20@hotmail.com").first()
+		response  = jsonify({
+			"name" : user.name
+		})
+                response.status_code = 200
+                return response
 class Registrar(Resource):
 	def post(self):
+		print("Opa 1")
 		name, email = request.json["name"], request.json["email"]
 		password = generate_password_hash(request.json.get("password"))
 
@@ -44,9 +55,13 @@ class Registrar(Resource):
 			user = User(name=name, email=email, password=password)
 			db.session.add(user)
 			db.session.commit()
-			return make_response({"message" : "success"}, 201)
+			response = jsonify({"message" : "sucess"})
+			response.status_code = 201
+			return response
 		else:
-			return make_response({"message" : "email has already been used"}, 400)
+			response = jsonify({"message" : "error"})
+			response.status_code = 400
+			return response
 
 class Logar(Resource):
 	def post(self):
@@ -56,14 +71,21 @@ class Logar(Resource):
 			if check_password_hash(user.password, password):
 				user_identity = {"id_user" : user.id_user, "name" : user.name, "email" : user.email}
 				token = create_access_token(identity=user_identity, expires_delta=False)
-				return make_response({"token" : token}, 200)
+				response = jsonify({"token" : token})
+				response.status_code = 200
+				return response
 
-		return make_response({"message" : "email and/or password incorrect"}, 401)
+
+		response = jsonify({"message" : "email and/or password incorrect"})
+		response.status_code = 401
+		return response
 
 class getUser(Resource):
 	@jwt_required
 	def get(self):
-		return make_response(get_jwt_identity(), 200)
+		response = jsonify(get_jwt_identity())
+		response.status_code = 200
+		return response
 
 class add_task(Resource):
 	def post(self):
@@ -72,7 +94,9 @@ class add_task(Resource):
 		task = Task(title=title, description=description, id_user=id_user, pomodoros_total=pomodoros_total)
 		db.session.add(task)
 		db.session.commit()
-		return make_response({"message" : "success"}, 201)
+		response = jsonify({"message" : "success"})
+		response.status_code = 201
+		return response
 
 class Tasks(Resource):
 	@jwt_required
@@ -85,7 +109,9 @@ class Tasks(Resource):
 			if task.active == True:
 				task_dict = {"id_task" : task.id_task, "title" : task.title, "description" : task.description, "current_pomodoros" : task.current_pomodoros, "pomodoros_total" : task.pomodoros_total, "active" : task.active}
 				retorno.append(task_dict)
-		return make_response({"tasks" : retorno}, 200)
+		response = jsonify({"tasks" : retorno})
+		response.status_code = 200
+		return response
 
 class get_task(Resource):
 	@jwt_required
@@ -101,8 +127,12 @@ class get_task(Resource):
 				"current_pomodoros" : task.current_pomodoros,
 				"pomodoros_total" : task.pomodoros_total
 			}
-			return make_response(response, 200)
-		return make_response({"message" : "Task not found"}, 404)
+			response = jsonify(response)
+			response.status_code = 200
+			return response
+		response = jsonify({"message" : "Task not found"})
+		response.status_code = 404
+		return response
 
 class update_task(Resource):
 	@jwt_required
@@ -113,16 +143,17 @@ class update_task(Resource):
 		if task.current_pomodoros == task.pomodoros_total:
 			task.active = False
 
-		response = {
+		response = jsonify({
 				"id_task" : task.id_task,
 				"active" : task.active,
 				"title" : task.title,
 				"description" : task.description,
 				"current_pomodoros" : task.current_pomodoros,
 				"pomodoros_total" : task.pomodoros_total
-			}
+			})
+		response.status_code = 200
 		db.session.commit()
-		return make_response({"task" : response}, 200)
+		return response
 
 class get_history(Resource):
 	@jwt_required
@@ -135,8 +166,11 @@ class get_history(Resource):
 			if task.active == False:
 				task_dict = {"id_task" : task.id_task, "title" : task.title, "description" : task.description, "current_pomodoros" : task.current_pomodoros, "pomodoros_total" : task.pomodoros_total, "active" : task.active}
 				retorno.append(task_dict)
-		return make_response({"tasks" : retorno}, 200)
+		response = jsonify({"tasks" : retorno})
+		response.status_code = 200
+		return response
 
+api.add_resource(Index, "/")
 api.add_resource(Registrar, "/registrar")
 api.add_resource(Logar, "/logar")
 api.add_resource(getUser, "/user")
@@ -147,4 +181,4 @@ api.add_resource(update_task, "/updateTask/<id_task>")
 api.add_resource(get_history, "/history")
 
 if __name__ == "__main__":
-	app.run(debug=True, port=5000)
+	app.run(debug=True)
