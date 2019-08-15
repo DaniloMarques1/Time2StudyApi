@@ -175,5 +175,5 @@ api.add_resource(get_task, "/task/<id_task>")
 api.add_resource(update_task, "/updateTask/<id_task>")
 api.add_resource(get_history, "/history")
 
-if __name__ == "__main__":
-	app.run(debug=True)
+#if __name__ == "__main__":
+#	app.run(debug=True)
