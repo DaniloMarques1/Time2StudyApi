@@ -38,12 +38,7 @@ class Task(db.Model):
 
 class Index(Resource):
 	def get(self):
-		user = User.query.filter_by(email="danilomarques20@hotmail.com").first()
-		response  = jsonify({
-			"name" : user.name
-		})
-                response.status_code = 200
-                return response
+            return "Hello, world!"
 class Registrar(Resource):
 	def post(self):
 		print("Opa 1")
