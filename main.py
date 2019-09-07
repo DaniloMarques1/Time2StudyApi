@@ -38,7 +38,6 @@ class Index(Resource):
 class Registrar(Resource):
 	def post(self):
 		name, email = request.json["name"], request.json["email"]
-		print(name, email)
 		password = generate_password_hash(request.json.get("password"))
 
 		#caso ja possua um usuario com o e-mail passado, não deixar cadastrar
@@ -83,7 +82,6 @@ class getUser(Resource):
 
 class add_task(Resource):
 	def post(self):
-		print("Opa")
 		title, description, pomodoros_total, id_user = request.json["title"], request.json[
 			"description"], request.json["pomodoro_total"], request.json["id_user"]
 
@@ -137,8 +135,6 @@ class update_task(Resource):
 	@jwt_required
 	def get(self, id_task):
 		task = Task.query.filter_by(id_task=int(id_task)).first()
-		print(task.current_pomodoros, task.pomodoros_total)
-		
 		if task.current_pomodoros < task.pomodoros_total:
 			task.current_pomodoros += 1
 			
