@@ -19,7 +19,7 @@ app.config["JWT_SECRET_KEY"] = "thisissupersecret"
 # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:1234@localhost/Study"
 
 #PYTHON ANYWHERE DATABASE
-app.config["SQL_ALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:91425377Danilo@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:91425377Danilo@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
 
 
 
