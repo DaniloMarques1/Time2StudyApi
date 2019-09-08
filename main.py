@@ -16,16 +16,14 @@ CORS(app)
 
 app.config["JWT_SECRET_KEY"] = "thisissupersecret"
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://danilo:1234@localhost/study"
-# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:1234@localhost/Study"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:1234@localhost/Study"
 
 #PYTHON ANYWHERE DATABASE
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:91425377Danilo@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:91425377Danilo@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
 
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {'pool_size' : 10, 'pool_recycle':60, 'pool_pre_ping': True}
+# app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {'pool_size' : 10, 'pool_recycle':60, 'pool_pre_ping': True}
 
 api = Api(app)
-
-
 
 jwt = JWTManager(app)
 
@@ -56,8 +54,11 @@ class Registrar(Resource):
 
 class Logar(Resource):
 	def post(self):
+		print("Opa")
 		email, password = request.json["email"], request.json["password"]
+		print("opa 2")
 		user = User.query.filter_by(email=email).first()
+		print("opa 3")
 		if user is not None:
 			if check_password_hash(user.password, password):
 				user_identity = {"id_user": user.id_user,
@@ -171,7 +172,28 @@ class get_history(Resource):
 		response.status_code = 200
 		return response
 
+class DeleteTask(Resource):
+	@jwt_required
+	def delete(self, id_task):
+		identity = get_jwt_identity()
+		user = User.query.filter_by(id_user=identity['id_user']).first()
+		u_tasks = user.tasks
+		for task in u_tasks:
+			if task.id_task == id_task:
+				db.session.delete(task)
+				break
+		db.session.commit()
 
+class delete_history(Resource):
+	@jwt_required
+	def delete(self):
+		identity = get_jwt_identity()
+		user = User.query.filter_by(id_user=identity['id_user']).first()
+		h_tasks = user.tasks
+		for task in h_tasks:
+			if task.active == False:
+				db.session.delete(task)
+		db.session.commit()
 #definição de rotas
 api.add_resource(Index, "/")
 api.add_resource(Registrar, "/registrar")
@@ -179,10 +201,11 @@ api.add_resource(Logar, "/logar")
 api.add_resource(getUser, "/user")
 api.add_resource(add_task, "/addTask")
 api.add_resource(Tasks, "/tasks")
-api.add_resource(get_task, "/task/<int:d_task>")
+api.add_resource(get_task, "/task/<int:id_task>")
 api.add_resource(update_task, "/updateTask/<id_task>")
 api.add_resource(get_history, "/history")
-
+api.add_resource(delete_history, "/deleteHistory")
+api.add_resource(DeleteTask, '/deleteTask/<int:id_task>')
 
 if __name__ == "__main__":
-	app.run(debug=True)
+	app.run(debug=True, port=5000)
