@@ -16,10 +16,10 @@ CORS(app)
 
 app.config["JWT_SECRET_KEY"] = "thisissupersecret"
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://danilo:1234@localhost/study"
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:1234@localhost/Study"
+#app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:1234@localhost/Study"
 
 #PYTHON ANYWHERE DATABASE
-# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:91425377Danilo@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://daniloMarques:91425377Danilo@daniloMarques.mysql.pythonanywhere-services.com/daniloMarques$Study"
 
 # app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {'pool_size' : 10, 'pool_recycle':60, 'pool_pre_ping': True}
 
