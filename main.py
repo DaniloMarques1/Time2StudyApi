@@ -101,7 +101,7 @@ class Tasks(Resource):
 		identity = get_jwt_identity()
 		user = User.query.filter(User.id_user==identity["id_user"]).first()
 		# tasks_list = user.tasks
-		tasks_list = Task.query.order_by(Task.id_task).filter(User.id_user == identity["id_user"], Task.active==True)
+		tasks_list = Task.query.order_by(Task.id_task).filter(User.id_user == identity["id_user"]).filter(Task.active==True)
 		retorno = []
 		for task in tasks_list:
 			if task.active == True:
@@ -162,8 +162,7 @@ class get_history(Resource):
 	def get(self):
 		identity = get_jwt_identity()
 		user = User.query.filter_by(id_user=identity["id_user"]).first()
-		tasks_list = Task.query.order_by(Task.id_task.desc()).filter(Task.id_user==identity["id_user"], Task.active==False)
-		print(tasks_list)
+		tasks_list = Task.query.order_by(Task.id_task.desc()).filter(Task.id_user == identity["id_user"]).filter(Task.active == False)
 		retorno = []
 		for task in tasks_list:
 			if task.active == False:
