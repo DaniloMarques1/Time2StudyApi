@@ -99,8 +99,9 @@ class Tasks(Resource):
 	@jwt_required
 	def get(self):
 		identity = get_jwt_identity()
-		user = User.query.filter_by(id_user=identity["id_user"]).first()
-		tasks_list = user.tasks
+		user = User.query.filter(User.id_user==identity["id_user"]).first()
+		# tasks_list = user.tasks
+		tasks_list = Task.query.order_by(Task.id_task).filter(User.id_user == identity["id_user"], Task.active==True)
 		retorno = []
 		for task in tasks_list:
 			if task.active == True:
@@ -161,7 +162,8 @@ class get_history(Resource):
 	def get(self):
 		identity = get_jwt_identity()
 		user = User.query.filter_by(id_user=identity["id_user"]).first()
-		tasks_list = user.tasks
+		tasks_list = Task.query.order_by(Task.id_task.desc()).filter(Task.id_user==identity["id_user"], Task.active==False)
+		print(tasks_list)
 		retorno = []
 		for task in tasks_list:
 			if task.active == False:
@@ -194,6 +196,19 @@ class delete_history(Resource):
 			if task.active == False:
 				db.session.delete(task)
 		db.session.commit()
+
+
+class Restore(Resource):
+	@jwt_required
+	def get(self, id_task):
+		task = Task.query.filter_by(id_task=id_task).first()
+		if task is not None and task.active == False:
+			task.current_pomodoros = 0
+			task.active = True
+			db.session.commit()
+			return make_response(jsonify({"message" : "success"}), 200)
+		return make_response(jsonify({"message": "task not found"}), 404)
+
 #definição de rotas
 api.add_resource(Index, "/")
 api.add_resource(Registrar, "/registrar")
@@ -206,6 +221,7 @@ api.add_resource(update_task, "/updateTask/<id_task>")
 api.add_resource(get_history, "/history")
 api.add_resource(delete_history, "/deleteHistory")
 api.add_resource(DeleteTask, '/deleteTask/<int:id_task>')
+api.add_resource(Restore, '/restore/<int:id_task>')
 
 if __name__ == "__main__":
 	app.run(debug=True, port=5000)
